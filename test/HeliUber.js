@@ -136,7 +136,7 @@ describe("HeliUber", () => {
       const HeliUber = await ethers.getContractFactory("HeliUber");
       heliUber = await HeliUber.deploy();
 
-      const destination = ethers.utils.formatBytes32String("Somewhere");
+      const destination = ethers.encodeBytes32String("Somewhere");
 
       // Create a booking as user1
       transaction = await heliUber.connect(passenger).bookRide(pilot.address, tokens(0.1), destination);

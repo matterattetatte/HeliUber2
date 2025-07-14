@@ -6,6 +6,6 @@ interface IHeliUber {
     event RideConfirmed(uint256 indexed rideId, address confirmer);
     event RideCompleted(uint256 indexed rideId, uint256 pilotAmount, uint256 creatorFee);
 
-    function bookRide(address pilot, uint256 price, bytes32 destination) external;
+    function bookRide(address pilot, uint256 price, bytes32 destination) external payable;
     function confirmRide(uint256 rideId) external;
 }

@@ -47,7 +47,7 @@ contract HeliUber is IHeliUber {
         address pilot,
         uint256 price,
         bytes32 destination
-    ) external {
+    ) payable external {
         uint256 rideId = booking.createBooking(
             msg.sender,
             pilot,
