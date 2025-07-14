@@ -47,7 +47,7 @@ contract HeliUber is IHeliUber {
         address pilot,
         uint256 price,
         bytes32 destination
-    ) external payable  {
+    ) external payable returns (uint256 rideId) {
         uint256 rideId = booking.createBooking(
             msg.sender,
             pilot,
@@ -56,6 +56,7 @@ contract HeliUber is IHeliUber {
         );
         payment.processPayment(rideId);
         emit RideBooked(rideId, msg.sender, pilot, price);
+        return rideId;
     }
 
     function list(
