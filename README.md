@@ -1,4 +1,4 @@
-# Dappazon
+# HeliUber
 
 ## Technology Stack & Tools
 
@@ -10,6 +10,12 @@
 
 ## Requirements For Initial Setup
 - Install [NodeJS](https://nodejs.org/en/)
+
+## Symlink between smart contracts artifacts to frontend abis
+
+for file in artifacts/contracts/*/*.json; do
+  ln -s ../../$file src/abis/$(basename $file)
+done
 
 ## Setting Up
 ### 1. Clone/Download the Repository
