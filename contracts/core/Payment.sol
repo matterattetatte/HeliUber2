@@ -14,7 +14,6 @@ contract Payment is HeliStorage {
         Ride storage ride = rides[rideId];
         require(ride.passenger == fromAddress, "Invalid passenger");
         require(ride.status == RideStatus.Pending, "Invalid status");
-        require(msg.value == price, "Incorrect ETH amount");
         ride.status = RideStatus.Paid;
     }
 
