@@ -1,8 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.17;
+
+import './Booking.sol';
 
 contract HeliUber {
     address public owner;
+
+    Booking private booking;
 
     struct Item {
         uint256 id;
@@ -33,6 +37,11 @@ contract HeliUber {
 
     constructor() {
         owner = msg.sender;
+    }
+
+    function bookRide(address pilot) public  {
+        
+
     }
 
     function list(
