@@ -10,9 +10,8 @@ contract Payment is HeliStorage {
     }
 
     // Passenger pays ETH for the ride
-    function processPayment(address fromAddress, uint256 rideId, uint256 price) external payable {
+    function processPayment(uint256 rideId) external payable {
         Ride storage ride = rides[rideId];
-        require(ride.passenger == fromAddress, "Invalid passenger");
         require(ride.status == RideStatus.Pending, "Invalid status");
         ride.status = RideStatus.Paid;
     }

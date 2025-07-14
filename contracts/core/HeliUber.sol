@@ -54,7 +54,7 @@ contract HeliUber is IHeliUber {
             price,
             destination
         );
-        payment.processPayment(msg.sender, price, rideId);
+        payment.processPayment(rideId);
         emit RideBooked(rideId, msg.sender, pilot, price);
     }
 

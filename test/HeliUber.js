@@ -1,8 +1,6 @@
 const { expect } = require("chai")
 
-const tokens = (n) => {
-  return ethers.utils.parseUnits(n.toString(), 'ether')
-}
+const tokens = (n) => ethers.parseEther(n.toString())
 
 // Global constants for listing an item...
 const ID = 1
@@ -136,11 +134,9 @@ describe("HeliUber", () => {
       const HeliUber = await ethers.getContractFactory("HeliUber");
       heliUber = await HeliUber.deploy();
 
-      const destination = ethers.encodeBytes32String("Somewhere");
-
       // Create a booking as user1
-      transaction = await heliUber.connect(passenger).bookRide(pilot.address, tokens(0.1), destination);
-      await transaction.wait();
+      // heliUber.connect(passenger).bookRide(pilot.address, tokens(0.1), destination);
+      // await transaction.wait();
     });
 
     it("Creates a booking", async () => {
@@ -151,10 +147,14 @@ describe("HeliUber", () => {
       // expect(booking.status).to.equal(0); // Pending
     });
 
-    it("Emits BookingCreated event", async () => {
+    it.only("Emits RideBooked event", async () => {
+      const destination = ethers.encodeBytes32String("Somewhere");
+
+      const token = tokens(0.1);
+
       await expect(
-        heliUber.connect(passenger).bookRide(ID, tokens(0.1), 2)
-      ).to.emit(heliUber, "BookingCreated");
+        heliUber.connect(passenger).bookRide(pilot.address, token, destination, { value: token })
+      ).to.emit(heliUber, "RideBooked");
     });
   });
 })

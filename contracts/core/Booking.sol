@@ -5,7 +5,10 @@ import "../storage/HeliStorage.sol";
 
 
 contract Booking is HeliStorage {
-
+    constructor(address _creator) {
+        creator = _creator;
+        rideCount = 0;
+    }
 
     function createBooking(address passenger, address pilot, uint256 price, bytes32 destination) external returns (uint256) {
         uint256 rideId = rideCount++;
