@@ -1,12 +1,16 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import './Booking.sol';
 
-contract HeliUber {
+import './Booking.sol';
+import "./Payment.sol";
+import "../interfaces/IHeliUber.sol";
+
+contract HeliUber is IHeliUber {
     address public owner;
 
     Booking private booking;
+    Payment private payment;
 
     struct Item {
         uint256 id;
@@ -39,9 +43,19 @@ contract HeliUber {
         owner = msg.sender;
     }
 
-    function bookRide(address pilot) public  {
-        
-
+    function bookRide(
+        address pilot,
+        uint256 price,
+        bytes32 destination
+    ) external {
+        uint256 rideId = booking.createBooking(
+            msg.sender,
+            pilot,
+            price,
+            destination
+        );
+        payment.processPayment(msg.sender, price, rideId);
+        emit RideBooked(rideId, msg.sender, pilot, price);
     }
 
     function list(
@@ -99,4 +113,6 @@ contract HeliUber {
         (bool success, ) = owner.call{value: address(this).balance}("");
         require(success);
     }
+
+    function confirmRide(uint256 rideId) external override {}
 }

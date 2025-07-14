@@ -124,4 +124,37 @@ describe("HeliUber", () => {
       expect(result).to.equal(0)
     })
   })
+
+  describe.only("Creating Booking", () => {
+    let heliUber, deployer, passenger, pilot, transaction;
+
+    beforeEach(async () => {
+      // Get signers
+      [deployer, passenger, pilot] = await ethers.getSigners();
+
+      // Deploy contract (example)
+      const HeliUber = await ethers.getContractFactory("HeliUber");
+      heliUber = await HeliUber.deploy();
+
+      const destination = ethers.utils.formatBytes32String("Somewhere");
+
+      // Create a booking as user1
+      transaction = await heliUber.connect(passenger).bookRide(pilot.address, tokens(0.1), destination);
+      await transaction.wait();
+    });
+
+    it("Creates a booking", async () => {
+      // Fetch booking info, assuming it’s stored by user address
+      // const booking = await heliUber.bookings(pilot, ID);
+
+      // expect(booking.amount).to.equal(tokens(0.1));
+      // expect(booking.status).to.equal(0); // Pending
+    });
+
+    it("Emits BookingCreated event", async () => {
+      await expect(
+        heliUber.connect(passenger).bookRide(ID, tokens(0.1), 2)
+      ).to.emit(heliUber, "BookingCreated");
+    });
+  });
 })
