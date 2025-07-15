@@ -18,26 +18,9 @@ async function main() {
   // Deploy HeliUber
   const HeliUber = await hre.ethers.getContractFactory("HeliUber")
   const heliuber = await HeliUber.deploy()
-  await heliuber.deployed()
 
-  console.log(`Deployed HeliUber Contract at: ${heliuber.address}\n`)
-
-  // Listing items...
-  for (let i = 0; i < items.length; i++) {
-    const transaction = await heliuber.connect(deployer).list(
-      items[i].id,
-      items[i].name,
-      items[i].category,
-      items[i].image,
-      tokens(items[i].price),
-      items[i].rating,
-      items[i].stock,
-    )
-
-    await transaction.wait()
-
-    console.log(`Listed item ${items[i].id}: ${items[i].name}`)
-  }
+  console.log(`Deployed HeliUber Contract at: ${await heliuber.getAddress()}\n`)
+  console.log(`Check out out in the Sonic Explorer: https://testnet.soniclabs.com/address/${await heliuber.getAddress()}\n`)
 }
 
 // We recommend this pattern to be able to use async/await everywhere

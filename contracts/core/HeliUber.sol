@@ -7,29 +7,6 @@ import "./Payment.sol";
 import "../interfaces/IHeliUber.sol";
 
 contract HeliUber is IHeliUber, Booking, Payment {
-
-    struct Item {
-        uint256 id;
-        string name;
-        string category;
-        string image;
-        uint256 cost;
-        uint256 rating;
-        uint256 stock;
-    }
-
-    struct Order {
-        uint256 time;
-        Item item;
-    }
-
-    mapping(uint256 => Item) public items;
-    mapping(address => mapping(uint256 => Order)) public orders;
-    mapping(address => uint256) public orderCount;
-
-    event Buy(address buyer, uint256 orderId, uint256 itemId);
-    event List(string name, uint256 cost, uint256 quantity);
-
     function bookRide(
         address pilot,
         uint256 price,
