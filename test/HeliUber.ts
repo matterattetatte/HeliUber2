@@ -1,17 +1,12 @@
+import "@nomicfoundation/hardhat-chai-matchers";
 import { expect } from "chai"
+import { ethers } from "hardhat"
 
 global.expect = expect
 global.ethers = ethers
-global.tokens = (n) => ethers.parseEther(n.toString())
+global.tokens = (n: number) => ethers.parseEther(n.toString())
 
-/**
- * Assert expected ETH balance changes after a transaction
- *
- * @param {bigint} actualDelta - Actual change in ETH balance (in wei)
- * @param {bigint} expectedDelta - Expected change in ETH balance (in wei)
- * @param {object} options - { allowGreater?: boolean, epsilon?: bigint }
- */
-global.expectBalanceChange = (actualDelta, expectedDelta, options = {}) => {
+global.expectBalanceChange = (actualDelta: bigint, expectedDelta: bigint, options: { allowGreater?: boolean; epsilon?: bigint; allowLess?: boolean } = {}) => {
   const allowGreater = options.allowGreater ?? false;
   const allowLess = options.allowLess ?? false;
   const epsilon = options.epsilon ?? ethers.parseEther("0.001");

@@ -1,8 +1,0 @@
-{
-    "compilerOptions": {
-        "target": "ES2020",
-        "moduleResolution": "node",
-        "types": ["hardhat", "chai", "mocha", "ethers"]
-    },
-    "include": [".", "./global.d.ts"]
-}
