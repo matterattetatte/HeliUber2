@@ -1,6 +1,6 @@
 describe("Booking", () => {
   describe("Creating Booking", () => {
-    let heliUber, passenger, pilot, transaction
+    let heliUber, passenger, deployer, pilot, transaction
 
     beforeEach(async () => {
       // Get signers

@@ -1,6 +1,7 @@
-const { expect } = require("chai")
+import { expect } from "chai"
 
 global.expect = expect
+global.ethers = ethers
 global.tokens = (n) => ethers.parseEther(n.toString())
 
 /**
@@ -28,7 +29,7 @@ global.expectBalanceChange = (actualDelta, expectedDelta, options = {}) => {
 }
 
 describe("HeliUber", () => {
-  require("./Pilot.js")
-  require("./Passenger.js")
-  require("./Booking.js")
+  require("./Pilot")
+  require("./Passenger")
+  require("./Booking")
 })
