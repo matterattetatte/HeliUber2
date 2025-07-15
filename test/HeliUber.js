@@ -2,15 +2,6 @@ const { expect } = require("chai")
 
 const tokens = (n) => ethers.parseEther(n.toString())
 
-// Global constants for listing an item...
-const ID = 1
-const NAME = "Shoes"
-const CATEGORY = "Clothing"
-const IMAGE = "https://ipfs.io/ipfs/QmTYEboq8raiBs7GTUg2yLXB3PMz6HuBNgNfSZBx5Msztg/shoes.jpg"
-const COST = tokens(1)
-const RATING = 4
-const STOCK = 5
-
 describe("HeliUber", () => {
   let heliUber
   let deployer, buyer
@@ -82,7 +73,7 @@ describe("HeliUber", () => {
     // one test for when the driver confirms first
     // another test for when the passenger confirms first
     // make sure to check before and after the second confirmation
-    let heliUber, deployer, passenger, pilot, transaction
+    let heliUber, deployer, passenger, pilot, transaction, token, initialPassengerBalance, initialPilotBalance, initialDeployerBalance
 
     beforeEach(async () => {
       // Get signers
@@ -93,14 +84,18 @@ describe("HeliUber", () => {
 
       // Create a booking
       const destination = ethers.encodeBytes32String("Somewhere")
-      const token = tokens(0.1)
+      token = tokens(0.1)
       transaction = await heliUber.connect(passenger).bookRide(pilot.address, token, destination, { value: token })
       await transaction.wait()
+
+      initialPassengerBalance = await ethers.provider.getBalance(passenger.address)
+      initialPilotBalance = await ethers.provider.getBalance(pilot.address)
+      initialDeployerBalance = await ethers.provider.getBalance(deployer.address)
     })
 
-    it.only("should confirm booking by passenger first", async () => {
+    it("should confirm booking by passenger first", async () => {
       // Passenger confirms
-      transaction = await heliUber.connect(passenger).confirmRide(0)
+      transaction = await heliUber.connect(passenger).confirmRide(passenger.address, 0)
       await transaction.wait()
 
       // Check ride status
@@ -108,11 +103,41 @@ describe("HeliUber", () => {
       expect(rides[0].status).to.equal(2) // PassengerConfirmed
 
       // Pilot confirms
-      transaction = await heliUber.connect(pilot).confirmRide(0)
+      transaction = await heliUber.connect(pilot).confirmRide(passenger.address, 0)
       await transaction.wait()
 
       // Check ride status after pilot confirmation
       expect(rides[0].status).to.equal(2) // BothConfirmed
+
+      const passengerBalance = await ethers.provider.getBalance(passenger.address)
+      const pilotBalance = await ethers.provider.getBalance(pilot.address)
+      const deployerBalance = await ethers.provider.getBalance(deployer.address)
+
+      expect(passengerBalance).to.be.lessThan(initialPassengerBalance)
+      expect(pilotBalance).to.be.greaterThan(initialPilotBalance)
+      expect(deployerBalance).to.be.greaterThan(initialDeployerBalance)
+    })
+    it.only("should confirm booking by pilot first", async () => {
+      transaction = await heliUber.connect(pilot).confirmRide(passenger.address, 0)
+      await transaction.wait()
+
+      const rides = await heliUber.getRidesForPassenger(passenger.address)
+      expect(rides[0].status).to.equal(3) // DriverConfirmed
+
+      transaction = await heliUber.connect(passenger).confirmRide(passenger.address, 0)
+      await transaction.wait()
+
+      const updatedRides = await heliUber.getRidesForPassenger(passenger.address)
+
+      expect(updatedRides[0].status).to.equal(5) // Completed
+
+      const passengerBalance = await ethers.provider.getBalance(passenger.address)
+      const pilotBalance = await ethers.provider.getBalance(pilot.address)
+      const deployerBalance = await ethers.provider.getBalance(deployer.address)
+
+      expect(passengerBalance).to.be.lessThan(initialPassengerBalance)
+      expect(pilotBalance).to.be.greaterThan(initialPilotBalance)
+      expect(deployerBalance).to.be.greaterThan(initialDeployerBalance)
     })
   })
 })

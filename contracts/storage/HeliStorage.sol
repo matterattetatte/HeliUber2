@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 contract HeliStorage {
-    enum RideStatus { Pending, Paid, PassengerConfirmed, BothConfirmed, Completed, Cancelled }
+    enum RideStatus { Pending, Paid, PassengerConfirmed, DriverConfirmed, BothConfirmed, Completed, Cancelled }
 
     struct Ride {
         address passenger;
@@ -12,6 +12,7 @@ contract HeliStorage {
         RideStatus status;
         bool passengerConfirmed;
         bool pilotConfirmed;
+        uint256 createdAt;
     }
 
     mapping(address => mapping(uint256 => Ride)) public rides;
@@ -19,6 +20,10 @@ contract HeliStorage {
     address public creator;
 
     mapping(address => bool) public pilots;
+
+    constructor() {
+        creator = msg.sender;
+    }
 
     function getRides(address passenger) internal view returns (Ride[] memory) {
         uint256 count = 0;
