@@ -2,25 +2,31 @@ const { expect } = require("chai")
 
 const tokens = (n) => ethers.parseEther(n.toString())
 
+/**
+ * Assert expected ETH balance changes after a transaction
+ *
+ * @param {bigint} actualDelta - Actual change in ETH balance (in wei)
+ * @param {bigint} expectedDelta - Expected change in ETH balance (in wei)
+ * @param {object} options - { allowGreater?: boolean, epsilon?: bigint }
+ */
+function expectBalanceChange(actualDelta, expectedDelta, options = {}) {
+  const allowGreater = options.allowGreater ?? false;
+  const allowLess = options.allowLess ?? false;
+  const epsilon = options.epsilon ?? ethers.parseEther("0.001");
+
+  if (allowGreater) {
+    // e.g. passenger overpaid due to gas
+    expect(actualDelta >= expectedDelta).to.be.true;
+    expect(actualDelta - expectedDelta < epsilon).to.be.true;
+  } else if (allowLess) {
+    // e.g. pilot received funds but paid tx gas (so net increase is slightly less)
+    expect(expectedDelta - actualDelta < epsilon).to.be.true;
+  } else {
+    expect(actualDelta).to.equal(expectedDelta);
+  }
+}
+
 describe("HeliUber", () => {
-  let heliUber
-  let deployer, buyer
-
-  beforeEach(async () => {
-    // Setup accounts
-    [deployer, buyer] = await ethers.getSigners()
-
-    // Deploy contract
-    const HeliUber = await ethers.getContractFactory("HeliUber")
-    heliUber = await HeliUber.deploy()
-  })
-
-  // describe("Deployment", () => {
-  //   it("Sets the owner", async () => {
-  //     expect(await heliUber.owner()).to.equal(heliUber.address)
-  //   })
-  // })
-
   describe("Creating Booking", () => {
     let heliUber, passenger, pilot, transaction
 
@@ -69,29 +75,24 @@ describe("HeliUber", () => {
     })
   })
   describe("Confirming Booking", () => {
-    // it's only when both passenger and pilot confirm that the ride is considered confirmed
-    // one test for when the driver confirms first
-    // another test for when the passenger confirms first
-    // make sure to check before and after the second confirmation
     let heliUber, deployer, passenger, pilot, transaction, token, initialPassengerBalance, initialPilotBalance, initialContractBalance, contractAddress
 
     beforeEach(async () => {
-      // Get signers
       [deployer, passenger, pilot] = await ethers.getSigners()
 
       const HeliUber = await ethers.getContractFactory("HeliUber")
       heliUber = await HeliUber.deploy()
+
+      initialPassengerBalance = await ethers.provider.getBalance(passenger.address)
+      initialPilotBalance = await ethers.provider.getBalance(pilot.address)
+      contractAddress = await heliUber.getAddress()
+      initialContractBalance = await ethers.provider.getBalance(contractAddress)
 
       // Create a booking
       const destination = ethers.encodeBytes32String("Somewhere")
       token = tokens(0.1)
       transaction = await heliUber.connect(passenger).bookRide(pilot.address, token, destination, { value: token })
       await transaction.wait()
-
-      initialPassengerBalance = await ethers.provider.getBalance(passenger.address)
-      initialPilotBalance = await ethers.provider.getBalance(pilot.address)
-      contractAddress = await heliUber.getAddress()
-      initialContractBalance = await ethers.provider.getBalance(contractAddress)
     })
 
     it("should confirm booking by passenger first", async () => {
@@ -136,9 +137,13 @@ describe("HeliUber", () => {
       const pilotBalance = await ethers.provider.getBalance(pilot.address)
       const contractBalance = await ethers.provider.getBalance(contractAddress)
 
-      expect(passengerBalance).to.be.lessThan(initialPassengerBalance)
-      expect(pilotBalance).to.be.greaterThan(initialPilotBalance)
-      expect(contractBalance).to.be.greaterThan(initialContractBalance)
+      const passengerDelta = initialPassengerBalance - passengerBalance;
+      const pilotDelta     = pilotBalance - initialPilotBalance;
+      const contractDelta  = contractBalance - initialContractBalance;
+
+      expectBalanceChange(passengerDelta, token, { allowGreater: true });
+      expectBalanceChange(pilotDelta, token * 99n / 100n, { allowLess: true });
+      expectBalanceChange(contractDelta, token * 1n / 100n);
     })
   })
 })
