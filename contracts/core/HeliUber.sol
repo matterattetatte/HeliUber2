@@ -52,11 +52,12 @@ contract HeliUber is IHeliUber, Booking, Payment {
     }
 
     function confirmRide(address passenger, uint256 rideId) external {
-        bool isBothConfirmed = confirmBooking(rideId, msg.sender, passenger);
+        bool isBothConfirmed = confirmBooking(msg.sender, passenger, rideId);
         emit RideConfirmed(rideId, msg.sender);
 
         if (isBothConfirmed) {
             releasePayment(passenger, rideId);
+            emit RideCompleted(rideId);
         }
     }
 }

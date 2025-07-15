@@ -23,7 +23,7 @@ contract Booking is HeliStorage {
         return status == RideStatus.Paid || status == RideStatus.PassengerConfirmed || status == RideStatus.DriverConfirmed;
     }
 
-    function confirmBooking(uint256 rideId, address confirmer, address passenger) internal returns (bool) {
+    function confirmBooking(address confirmer, address passenger, uint256 rideId) internal returns (bool) {
         Ride storage ride = rides[passenger][rideId];
         require(isPaidOrConfirmed(ride.status), "Ride not paid");
         require(confirmer == ride.passenger || confirmer == ride.pilot, "Invalid confirmer");

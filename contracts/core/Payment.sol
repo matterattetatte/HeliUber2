@@ -13,22 +13,15 @@ contract Payment is HeliStorage {
         ride.status = RideStatus.Paid;
     }
 
-    // Release payment to pilot and creator after both confirm
-    function releasePayment(address passenger, uint256 rideId) internal {
+   function releasePayment(address passenger, uint256 rideId) internal {
         Ride storage ride = rides[passenger][rideId];
         require(ride.status == RideStatus.BothConfirmed, "Not both confirmed");
 
-        uint256 creatorFee = ride.price / 100; // 1% fee
-        uint256 pilotAmount = ride.price - creatorFee;
-
-        // Transfer to creator
-        (bool sentToCreator, ) = payable(creator).call{value: creatorFee}("");
-        require(sentToCreator, "Failed to send to creator");
-
-        // Transfer to pilot
-        (bool sentToPilot, ) = payable(ride.pilot).call{value: pilotAmount}("");
-        require(sentToPilot, "Failed to send to pilot");
+        uint256 pilotAmount = ride.price * 99 / 100;
 
         ride.status = RideStatus.Completed;
+
+        (bool sent, ) = payable(ride.pilot).call{ value: pilotAmount }("");
+        require(sent, "Failed to send to pilot");
     }
 }

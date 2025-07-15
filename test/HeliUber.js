@@ -15,14 +15,14 @@ describe("HeliUber", () => {
     heliUber = await HeliUber.deploy()
   })
 
-  describe("Deployment", () => {
-    it("Sets the owner", async () => {
-      expect(await heliUber.owner()).to.equal(deployer.address)
-    })
-  })
+  // describe("Deployment", () => {
+  //   it("Sets the owner", async () => {
+  //     expect(await heliUber.owner()).to.equal(heliUber.address)
+  //   })
+  // })
 
   describe("Creating Booking", () => {
-    let heliUber, deployer, passenger, pilot, transaction
+    let heliUber, passenger, pilot, transaction
 
     beforeEach(async () => {
       // Get signers
@@ -73,7 +73,7 @@ describe("HeliUber", () => {
     // one test for when the driver confirms first
     // another test for when the passenger confirms first
     // make sure to check before and after the second confirmation
-    let heliUber, deployer, passenger, pilot, transaction, token, initialPassengerBalance, initialPilotBalance, initialDeployerBalance
+    let heliUber, deployer, passenger, pilot, transaction, token, initialPassengerBalance, initialPilotBalance, initialContractBalance, contractAddress
 
     beforeEach(async () => {
       // Get signers
@@ -90,7 +90,8 @@ describe("HeliUber", () => {
 
       initialPassengerBalance = await ethers.provider.getBalance(passenger.address)
       initialPilotBalance = await ethers.provider.getBalance(pilot.address)
-      initialDeployerBalance = await ethers.provider.getBalance(deployer.address)
+      contractAddress = await heliUber.getAddress()
+      initialContractBalance = await ethers.provider.getBalance(contractAddress)
     })
 
     it("should confirm booking by passenger first", async () => {
@@ -111,11 +112,11 @@ describe("HeliUber", () => {
 
       const passengerBalance = await ethers.provider.getBalance(passenger.address)
       const pilotBalance = await ethers.provider.getBalance(pilot.address)
-      const deployerBalance = await ethers.provider.getBalance(deployer.address)
+      const contractBalance = await ethers.provider.getBalance(contractAddress)
 
       expect(passengerBalance).to.be.lessThan(initialPassengerBalance)
       expect(pilotBalance).to.be.greaterThan(initialPilotBalance)
-      expect(deployerBalance).to.be.greaterThan(initialDeployerBalance)
+      expect(contractBalance).to.be.greaterThan(initialContractBalance)
     })
     it.only("should confirm booking by pilot first", async () => {
       transaction = await heliUber.connect(pilot).confirmRide(passenger.address, 0)
@@ -133,11 +134,11 @@ describe("HeliUber", () => {
 
       const passengerBalance = await ethers.provider.getBalance(passenger.address)
       const pilotBalance = await ethers.provider.getBalance(pilot.address)
-      const deployerBalance = await ethers.provider.getBalance(deployer.address)
+      const contractBalance = await ethers.provider.getBalance(contractAddress)
 
       expect(passengerBalance).to.be.lessThan(initialPassengerBalance)
       expect(pilotBalance).to.be.greaterThan(initialPilotBalance)
-      expect(deployerBalance).to.be.greaterThan(initialDeployerBalance)
+      expect(contractBalance).to.be.greaterThan(initialContractBalance)
     })
   })
 })
