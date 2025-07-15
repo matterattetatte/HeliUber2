@@ -119,7 +119,7 @@ describe("HeliUber", () => {
       expect(pilotBalance).to.be.greaterThan(initialPilotBalance)
       expect(contractBalance).to.be.greaterThan(initialContractBalance)
     })
-    it.only("should confirm booking by pilot first", async () => {
+    it("should confirm booking by pilot first", async () => {
       transaction = await heliUber.connect(pilot).confirmRide(passenger.address, 0)
       await transaction.wait()
 
