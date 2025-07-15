@@ -3,8 +3,6 @@ pragma solidity ^0.8.17;
 
 import "../storage/HeliStorage.sol";
 
-import "hardhat/console.sol";
-
 contract Payment is HeliStorage {
     // Passenger pays ETH for the ride
     function processPayment(address passenger, uint256 rideId) internal {

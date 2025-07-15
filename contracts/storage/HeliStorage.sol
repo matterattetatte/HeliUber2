@@ -19,8 +19,6 @@ contract HeliStorage {
     uint256 public rideCount;
     address public creator;
 
-    mapping(address => bool) public pilots;
-
     constructor() {
         creator = msg.sender;
     }

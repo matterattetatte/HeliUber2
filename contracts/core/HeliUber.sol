@@ -4,9 +4,11 @@ pragma solidity ^0.8.17;
 
 import './Booking.sol';
 import "./Payment.sol";
+import "./Pilot.sol";
+import "./Passenger.sol";
 import "../interfaces/IHeliUber.sol";
 
-contract HeliUber is IHeliUber, Booking, Payment {
+contract HeliUber is IHeliUber, Booking, Payment, Pilot, Passenger {
     function bookRide(
         address pilot,
         uint256 price,
