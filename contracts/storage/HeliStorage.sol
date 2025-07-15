@@ -14,9 +14,29 @@ contract HeliStorage {
         bool pilotConfirmed;
     }
 
-    mapping(uint256 => Ride) public rides;
+    mapping(address => mapping(uint256 => Ride)) public rides;
     uint256 public rideCount;
     address public creator;
 
     mapping(address => bool) public pilots;
+
+    function getRides(address passenger) internal view returns (Ride[] memory) {
+        uint256 count = 0;
+        for (uint256 i = 0; i < rideCount; i++) {
+            if (rides[passenger][i].passenger != address(0)) {
+                count++;
+            }
+        }
+
+        Ride[] memory passengerRides = new Ride[](count);
+        uint256 index = 0;
+        for (uint256 i = 0; i < rideCount; i++) {
+            if (rides[passenger][i].passenger != address(0)) {
+                passengerRides[index] = rides[passenger][i];
+                index++;
+            }
+        }
+
+        return passengerRides;
+    }
 }

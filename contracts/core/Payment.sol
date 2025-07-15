@@ -3,22 +3,19 @@ pragma solidity ^0.8.17;
 
 import "../storage/HeliStorage.sol";
 
+import "hardhat/console.sol";
+
 contract Payment is HeliStorage {
-
-    constructor(address _creator) {
-        creator = _creator;
-    }
-
     // Passenger pays ETH for the ride
-    function processPayment(uint256 rideId) external payable {
-        Ride storage ride = rides[rideId];
+    function processPayment(address passenger, uint256 rideId) internal {
+        Ride storage ride = rides[passenger][rideId];
         require(ride.status == RideStatus.Pending, "Invalid status");
         ride.status = RideStatus.Paid;
     }
 
     // Release payment to pilot and creator after both confirm
-    function releasePayment(uint256 rideId) external {
-        Ride storage ride = rides[rideId];
+    function releasePayment(address passenger, uint256 rideId) internal {
+        Ride storage ride = rides[passenger][rideId];
         require(ride.status == RideStatus.BothConfirmed, "Not both confirmed");
 
         uint256 creatorFee = ride.price / 100; // 1% fee

@@ -3,16 +3,12 @@ pragma solidity ^0.8.17;
 
 import "../storage/HeliStorage.sol";
 
+import "hardhat/console.sol";
 
 contract Booking is HeliStorage {
-    constructor(address _creator) {
-        creator = _creator;
-        rideCount = 0;
-    }
-
-    function createBooking(address passenger, address pilot, uint256 price, bytes32 destination) external returns (uint256) {
+        function createBooking(address passenger, address pilot, uint256 price, bytes32 destination) internal returns (uint256) {
         uint256 rideId = rideCount++;
-        rides[rideId] = Ride({
+        rides[passenger][rideId] = Ride({
             passenger: passenger,
             pilot: pilot,
             price: price,
@@ -24,8 +20,8 @@ contract Booking is HeliStorage {
         return rideId;
     }
 
-    function confirmBooking(uint256 rideId, address confirmer) external {
-        Ride storage ride = rides[rideId];
+    function confirmBooking(uint256 rideId, address confirmer) internal {
+        Ride storage ride = rides[confirmer][rideId];
         require(ride.status == RideStatus.Paid, "Ride not paid");
         require(confirmer == ride.passenger || confirmer == ride.pilot, "Invalid confirmer");
 
@@ -42,8 +38,8 @@ contract Booking is HeliStorage {
         }
     }
 
-    function isBothConfirmed(uint256 rideId) external view returns (bool) {
-        Ride storage ride = rides[rideId];
+    function isBothConfirmed(address passenger, uint256 rideId) internal view returns (bool) {
+        Ride storage ride = rides[passenger][rideId];
         return ride.passengerConfirmed && ride.pilotConfirmed;
     }
 }

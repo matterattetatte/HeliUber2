@@ -6,11 +6,7 @@ import './Booking.sol';
 import "./Payment.sol";
 import "../interfaces/IHeliUber.sol";
 
-contract HeliUber is IHeliUber {
-    address public owner;
-
-    Booking private booking;
-    Payment private payment;
+contract HeliUber is IHeliUber, Booking, Payment {
 
     struct Item {
         uint256 id;
@@ -34,86 +30,29 @@ contract HeliUber is IHeliUber {
     event Buy(address buyer, uint256 orderId, uint256 itemId);
     event List(string name, uint256 cost, uint256 quantity);
 
-    modifier onlyOwner() {
-        require(msg.sender == owner);
-        _;
-    }
-
-    constructor() {
-        owner = msg.sender;
-    }
-
     function bookRide(
         address pilot,
         uint256 price,
         bytes32 destination
-    ) external payable returns (uint256 rideId) {
-        uint256 rideId = booking.createBooking(
+    ) external payable {
+        uint256 rideId = createBooking(
             msg.sender,
             pilot,
             price,
             destination
         );
-        payment.processPayment(rideId);
+        processPayment(msg.sender, rideId);
         emit RideBooked(rideId, msg.sender, pilot, price);
-        return rideId;
     }
 
-    function list(
-        uint256 _id,
-        string memory _name,
-        string memory _category,
-        string memory _image,
-        uint256 _cost,
-        uint256 _rating,
-        uint256 _stock
-    ) public onlyOwner {
-        // Create Item
-        Item memory item = Item(
-            _id,
-            _name,
-            _category,
-            _image,
-            _cost,
-            _rating,
-            _stock
-        );
+    function getRidesForPassenger(address passenger) external view returns (Booking.Ride[] memory) {
+        Booking.Ride[] memory rides = getRides(passenger);
 
-        // Add Item to mapping
-        items[_id] = item;
-
-        // Emit event
-        emit List(_name, _cost, _stock);
+        return rides;   
     }
 
-    function buy(uint256 _id) public payable {
-        // Fetch item
-        Item memory item = items[_id];
-
-        // Require enough ether to buy item
-        require(msg.value >= item.cost);
-
-        // Require item is in stock
-        require(item.stock > 0);
-
-        // Create order
-        Order memory order = Order(block.timestamp, item);
-
-        // Add order for user
-        orderCount[msg.sender]++; // <-- Order ID
-        orders[msg.sender][orderCount[msg.sender]] = order;
-
-        // Subtract stock
-        items[_id].stock = item.stock - 1;
-
-        // Emit event
-        emit Buy(msg.sender, orderCount[msg.sender], item.id);
+    function confirmRide(uint256 rideId) external override {
+        confirmBooking(rideId, msg.sender);
+        emit RideConfirmed(rideId, msg.sender);
     }
-
-    function withdraw() public onlyOwner {
-        (bool success, ) = owner.call{value: address(this).balance}("");
-        require(success);
-    }
-
-    function confirmRide(uint256 rideId) external override {}
 }
