@@ -17,6 +17,7 @@
   "dependencies": {
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "leaflet": "^1.9.4",
+    "leaflet-spline": "^0.2.0",
     "leaflet.markercluster": "^1.5.3",
     "pinia": "^3.0.3",
     "viem": "^2.31.7",
@@ -32,6 +33,7 @@
     "@typechain/ethers-v6": "^0.5.1",
     "@typechain/hardhat": "^9.1.0",
     "@types/jsdom": "^21.1.7",
+    "@types/leaflet": "^1.9.20",
     "@types/node": "^22.15.32",
     "@vitejs/plugin-vue": "^6.0.0",
     "@vitejs/plugin-vue-jsx": "^5.0.0",
