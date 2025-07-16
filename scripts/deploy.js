@@ -16,11 +16,10 @@ async function main() {
   // Setup accounts
   const [deployer, ...pilotSigners] = await ethers.getSigners()
 
-  console.log('Signers length', pilotSigners[0])
-
   // Deploy HeliUber
   const HeliUber = await hre.ethers.getContractFactory("HeliUber")
   const heliuber = await HeliUber.deploy()
+  await heliuber.waitForDeployment()
 
   const address = await heliuber.getAddress()
 
@@ -30,7 +29,7 @@ async function main() {
 
   console.log('Now, registering some random pilots...')
 
-  for (const [index, pilot] of mockPilots.slice(0, 1).entries()) {
+  for (const [index, pilot] of mockPilots.slice(0, 2).entries()) {
     const pilotBalance = await deployer.provider.getBalance(pilot.pilotAddress)
     console.log(`Pilot ${pilot.pilotAddress} balance before:`, ethers.formatEther(pilotBalance), 'ETH')
 
