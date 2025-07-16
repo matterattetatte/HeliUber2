@@ -1,11 +1,5 @@
-import type { MetaMaskInpageProvider } from '@metamask/providers'
-
 declare global {
-  interface Window {
-    ethereum: any;
-  }
-
-  interface Location {
+  interface Port {
     id: string;
     name: string;
     type: string;
