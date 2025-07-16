@@ -16,7 +16,7 @@ module.exports = {
   networks: {
     sonic: {
       url: "https://rpc.blaze.soniclabs.com",
-      accounts: [SONIC_PRIVATE_KEY]
+      accounts: [SONIC_PRIVATE_KEY, 'cb3bfef897343533165c1dc213d123bfe71e20f179e2e74ba5e6b9c8451c43d9']
     }
   },
   typechain: {

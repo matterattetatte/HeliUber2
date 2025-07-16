@@ -15,6 +15,7 @@ contract Pilot is HeliStorage {
     event PilotRegistered(address indexed pilot, string name, string licenseNumber);
 
     mapping(address => PilotProfile) private pilots;
+    address[] private pilotsList;
 
     function registerPilot(
         string memory name,
@@ -30,7 +31,13 @@ contract Pilot is HeliStorage {
         pilot.rating = 0;
         pilot.totalRides = 0;
 
+        pilotsList.push(msg.sender);
+
         emit PilotRegistered(msg.sender, name, licenseNumber);
+    }
+
+    function getPilotsList() public view returns (address[] memory) {
+        return pilotsList;
     }
 
     function getPilotProfile(address pilot) public view returns (PilotProfile memory) {

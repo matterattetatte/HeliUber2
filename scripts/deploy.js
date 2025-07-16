@@ -5,7 +5,8 @@
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
 const hre = require("hardhat")
-const { items } = require("../src/items.json")
+const { writeFileSync } = require("fs")
+const mockPilots = require("../mock/pilots.json")
 
 const tokens = (n) => {
   return ethers.utils.parseUnits(n.toString(), 'ether')
@@ -13,14 +14,46 @@ const tokens = (n) => {
 
 async function main() {
   // Setup accounts
-  const [deployer] = await ethers.getSigners()
+  const [deployer, ...pilotSigners] = await ethers.getSigners()
+
+  console.log('Signers length', pilotSigners[0])
 
   // Deploy HeliUber
   const HeliUber = await hre.ethers.getContractFactory("HeliUber")
   const heliuber = await HeliUber.deploy()
 
-  console.log(`Deployed HeliUber Contract at: ${await heliuber.getAddress()}\n`)
-  console.log(`Check out out in the Sonic Explorer: https://testnet.soniclabs.com/address/${await heliuber.getAddress()}\n`)
+  const address = await heliuber.getAddress()
+
+  console.log(`Deployed HeliUber Contract at: ${address}\n`)
+  console.log(`Check out out in the Sonic Explorer: https://testnet.soniclabs.com/address/${address}\n`)
+  console.log(`Update the .env file in ../frontend with the new contract address\n`)
+
+  console.log('Now, registering some random pilots...')
+
+  for (const [index, pilot] of mockPilots.slice(0, 1).entries()) {
+    const pilotBalance = await deployer.provider.getBalance(pilot.address)
+    console.log(`Pilot ${pilot.address} balance before:`, ethers.formatEther(pilotBalance), 'ETH')
+
+    if (pilotBalance === 0n) {
+      const fundTx = await deployer.sendTransaction({
+        to: pilot.address,
+        value: ethers.parseEther('0.05'), // e.g. 0.05 ETH
+      })
+      await fundTx.wait()
+      console.log(`  → Funded with 0.05 ETH`)
+    } else {
+      console.log('  → Already has balance, skipping')
+    }
+
+    const pilotSigner = pilotSigners[index];
+    const tx = await heliuber.connect(pilotSigner).registerPilot(pilot.name, pilot.licenseNumber);
+    await tx.wait();
+    console.log(`Registered pilot: ${pilot.name} with license ${pilot.licenseNumber}`);
+  }
+
+
+
+  writeFileSync('./frontend/.env', `VITE_HELIUBER_CONTRACT_ADDRESS=${address}\n`, { flag: 'w' })
 }
 
 // We recommend this pattern to be able to use async/await everywhere

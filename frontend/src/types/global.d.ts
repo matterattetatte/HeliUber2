@@ -19,4 +19,14 @@ declare global {
     wikipedia_link: string;
     keywords: string;
   }
+
+  interface PilotProfile {
+    address: string;
+    name: string;
+    licenseNumber: string;
+    rating: number;
+    totalRides: number;
+  }
 }
+
+export {}

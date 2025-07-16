@@ -1,50 +1,78 @@
 <template>
   <div class="w-full h-screen">
     <h1 class="text-lg font-bold pb-2">Select a start and end location</h1>
-      <l-map :zoom="5" ref="mapRef" @ready="onMapReady" :center="[center[0], center[1]]" style="height: 50%; width: 80%; margin-left: 10%;">
-        <l-tile-layer
+      <LMap :zoom="5" ref="mapRef" @ready="onMapReady" :center="[center[0], center[1]]" style="height: 50%; width: 80%; margin-left: 10%;">
+        <LTileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="&copy OpenStreetMap contributors"
         />
-        <l-marker-cluster-group v-if="!endLocation">
-          <l-marker
+        <LMarkerClusterGroup v-if="!endLocation">
+          <LMarker
             v-for="loc in locations"
             :key="loc.name"
             :lat-lng="[loc.latitude_deg, loc.longitude_deg]"
             @click="handleMarkerClick(loc, startLocation ? 'endLocation' : 'startLocation')"
           />
-        </l-marker-cluster-group>
-      </l-map>
+        </LMarkerClusterGroup>
+      </LMap>
 
-      <div class="flex justify-between mt-4">
-        <div>
-          <h2 class="text-md font-semibold">Start Location:</h2>
-          <p v-if="startLocation">{{ startLocation.name }} ({{ startLocation.municipality }})</p>
-          <p v-else>Select a start location</p>
-        </div>
-        <div>
-          <h2 class="text-md font-semibold">End Location:</h2>
-          <p v-if="endLocation">{{ endLocation.name }} ({{ endLocation.municipality }})</p>
-          <p v-else>Select an end location</p>
-        </div>
-        <!-- display distance and price -->
-        <div>
-          <h2 class="text-md font-semibold">Distance:</h2>
-          <p v-if="startLocation && endLocation">{{ distanceKm }} km</p>
-          <p v-else>Calculate distance after selecting locations</p>
-          <h2 class="text-md font-semibold">Price:</h2>
-          <p v-if="startLocation && endLocation">{{ price }} PLN</p>
-          <p v-else>Calculate price after selecting locations</p>
-        </div>
-        <button @click="clearSelection()" class="bg-red-500 text-white px-4 py-2 rounded">
-          Clear Selection
-        </button>
+      <div class="p-6 grid md:grid-cols-3 gap-6">
+        <InfoCard
+          title="Start"
+          :label="startLocation ? startLocation.name : 'Select a start'"
+          :sub="startLocation ? startLocation.municipality : ''"
+        />
+        <InfoCard
+          title="End"
+          :label="endLocation ? endLocation.name : 'Select an end'"
+          :sub="endLocation ? endLocation.municipality : ''"
+        />
+        <InfoCard
+          title="Summary"
+          :label="startLocation && endLocation ? `${distanceKm} km` : 'Select locations'"
+          :sub="startLocation && endLocation ? `${price} PLN` : ''"
+        />
+      <button @click="clearSelection()" class="bg-red-500 text-white px-4 py-2 rounded">
+        Clear Selection
+      </button>
+      <button @click="showModal = true" class="bg-blue-500 text-white px-4 py-2 rounded">
+        Continue to Checkout
+      </button>
       </div>
+      <BaseModal
+        v-model:show="showModal"
+        title="Checkout"
+      >
+        <template #default>
+          <div class="space-y-4">
+            <p class="text-gray-700">Start Location: {{ startLocation ? startLocation.name : 'Not selected' }}</p>
+            <p class="text-gray-700">End Location: {{ endLocation ? endLocation.name : 'Not selected' }}</p>
+            <p class="text-gray-700">Distance: {{ distanceKm }} km</p>
+            <p class="text-gray-700">Price: {{ price }} PLN</p>
+            <p class="text-gray-700">Pilot Details:</p>
+            <div class="bg-gray-100 p-4 rounded" v-if="pilot">
+              <p class="text-gray-600">Pilot Address: {{ pilot.address }}</p>
+              <p class="text-gray-600">Pilot Name: {{ pilot.name }}</p>
+              <p class="text-gray-600">License Number: {{ pilot.licenseNumber }}</p>
+              <p class="text-gray-600">Rating: {{ pilot.rating }} ⭐</p>
+              <p class="text-gray-600">Total Rides: {{ pilot.totalRides }}</p>
+            </div>
+          </div>
+        </template>
+        <template #footer>
+          <button @click="showModal = false" class="bg-gray-300 px-4 py-2 rounded">
+            Close
+          </button>
+          <button @click="confirmCheckout" class="bg-blue-500 text-white px-4 py-2 rounded">
+            Confirm Checkout
+          </button>
+        </template>
+      </BaseModal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { LMap, LTileLayer, LMarker } from '@vue-leaflet/vue-leaflet'
 import * as L from "leaflet"
 import { spline } from 'leaflet-spline'
@@ -52,19 +80,24 @@ import { LMarkerClusterGroup  } from 'vue-leaflet-markercluster'
 import markerIconUrl from "leaflet/dist/images/marker-icon.png"
 import markerIconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png"
 import markerShadowUrl from "leaflet/dist/images/marker-shadow.png"
-
+import InfoCard from '@/components/cards/InfoCard.vue'
+import BaseModal from '@/components/modals/BaseModal.vue'
+import HeliUberContract from '@/abis/HeliUber.json'
+import { publicClient, walletClient } from '@/clients'
 
 L.Icon.Default.mergeOptions({
   iconUrl: markerIconUrl,
   iconRetinaUrl: markerIconRetinaUrl,
   shadowUrl: markerShadowUrl
 })
-
 const center = ref<L.LatLngTuple>([52.0, 19.0]) // Approximate center of Poland
 const locations = ref<Port[]>([])
 const startLocation = ref<Port | null>(null)
 const endLocation = ref<Port | null>(null)
 const mapRef = ref<typeof LMap | null>(null)
+const pilot = ref<PilotProfile | null>(null)
+const showModal = ref(false)
+
 let map: L.Map | null = null
 
 const onMapReady = () => {
@@ -91,8 +124,6 @@ const clearSelection = () => {
   })
   console.log('Map view reset to center:', center.value)
 }
-
-
 
 const country = 'PL'
 
@@ -182,6 +213,26 @@ const price = computed(() => {
 onMounted(async () => {
   const resp = await fetch(new URL(`../assets/airports_${country}.json`, import.meta.url))
   locations.value = await resp.json()
+})
+
+watch(showModal, async (newValue) => {
+  if (newValue && startLocation.value && endLocation.value) {
+    // here, I want to interact using the abis
+    // start by getting all pilots
+    // getPilotsList
+    const pilotIds = await publicClient.readContract({
+      address: import.meta.env.VITE_HELIUBER_CONTRACT_ADDRESS,
+      abi: HeliUberContract.abi,
+      functionName: 'getPilotsList'
+    })
+
+    console.log('Pilot IDs:', pilotIds)
+
+
+    
+  } else {
+    pilot.value = null
+  }
 })
 
 

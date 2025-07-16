@@ -26,6 +26,12 @@ describe("Pilot", () => {
 
     transaction = await heliUber.connect(pilot).registerPilot(profile.name, profile.licenseNumber)
     await transaction.wait()
+
+    const allPilots = await heliUber.getPilotsList()
+
+    expect(allPilots.length).to.equal(1)
+    expect(allPilots[0]).to.equal(pilot.address)
+
     const pilotProfile = await heliUber.getPilotProfile(pilot.address)
     expect(pilotProfile.name).to.equal(profile.name)
     expect(pilotProfile.licenseNumber).to.equal(profile.licenseNumber)
