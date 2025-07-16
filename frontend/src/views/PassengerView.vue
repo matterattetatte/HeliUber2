@@ -57,6 +57,9 @@
               <p class="text-gray-600">Rating: {{ pilot.rating }} ⭐</p>
               <p class="text-gray-600">Total Rides: {{ pilot.totalRides }}</p>
             </div>
+            <div v-else class="bg-gray-100 p-4 rounded">
+              Fetching pilot details...
+            </div>
           </div>
         </template>
         <template #footer>
@@ -83,7 +86,7 @@ import markerShadowUrl from "leaflet/dist/images/marker-shadow.png"
 import InfoCard from '@/components/cards/InfoCard.vue'
 import BaseModal from '@/components/modals/BaseModal.vue'
 import HeliUberContract from '@/abis/HeliUber.json'
-import { publicClient, walletClient } from '@/clients'
+import { publicClient } from '@/clients'
 
 L.Icon.Default.mergeOptions({
   iconUrl: markerIconUrl,
@@ -224,12 +227,26 @@ watch(showModal, async (newValue) => {
       address: import.meta.env.VITE_HELIUBER_CONTRACT_ADDRESS,
       abi: HeliUberContract.abi,
       functionName: 'getPilotsList'
-    })
+    }) as string[]
 
-    console.log('Pilot IDs:', pilotIds)
+    const pilotId = pilotIds[Math.floor(Math.random() * pilotIds.length)]
 
+    console.log('Selected pilot ID:', pilotId)
 
-    
+    const pilotData = await publicClient.readContract({
+      address: import.meta.env.VITE_HELIUBER_CONTRACT_ADDRESS,
+      abi: HeliUberContract.abi,
+      functionName: 'getPilotProfile',
+      args: [pilotId]
+    }) as PilotProfile
+
+    pilot.value = {
+      address: pilotId,
+      name: pilotData.name,
+      licenseNumber: pilotData.licenseNumber,
+      rating: pilotData.rating,
+      totalRides: pilotData.totalRides
+    }    
   } else {
     pilot.value = null
   }

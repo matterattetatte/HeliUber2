@@ -31,12 +31,12 @@ async function main() {
   console.log('Now, registering some random pilots...')
 
   for (const [index, pilot] of mockPilots.slice(0, 1).entries()) {
-    const pilotBalance = await deployer.provider.getBalance(pilot.address)
-    console.log(`Pilot ${pilot.address} balance before:`, ethers.formatEther(pilotBalance), 'ETH')
+    const pilotBalance = await deployer.provider.getBalance(pilot.pilotAddress)
+    console.log(`Pilot ${pilot.pilotAddress} balance before:`, ethers.formatEther(pilotBalance), 'ETH')
 
     if (pilotBalance === 0n) {
       const fundTx = await deployer.sendTransaction({
-        to: pilot.address,
+        to: pilot.pilotAddress,
         value: ethers.parseEther('0.05'), // e.g. 0.05 ETH
       })
       await fundTx.wait()
@@ -46,6 +46,7 @@ async function main() {
     }
 
     const pilotSigner = pilotSigners[index];
+
     const tx = await heliuber.connect(pilotSigner).registerPilot(pilot.name, pilot.licenseNumber);
     await tx.wait();
     console.log(`Registered pilot: ${pilot.name} with license ${pilot.licenseNumber}`);

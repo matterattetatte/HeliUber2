@@ -1,34 +1,34 @@
 [
   {
-    "address": "0xE319828E7A29Ed276F8BdEd51034D23D13870e81",
+    "pilotAddress": "0x5A64167dCE9bC75cCe77491985A02d35723A5460",
     "name": "Jakub Nowak",
     "licenseNumber": "PLT-43219",
     "rating": 5,
     "totalRides": 182
   },
   {
-    "address": "0xB2C3D4E5F6A701234567890ABCDEF1234567890A",
+    "pilotAddress": "0xB2C3D4E5F6A701234567890ABCDEF1234567890A",
     "name": "Wojciech Kowalski",
     "licenseNumber": "PLT-78541",
     "rating": 4,
     "totalRides": 241
   },
   {
-    "address": "0xC3D4E5F6A7B801234567890ABCDEF1234567890A",
+    "pilotAddress": "0xC3D4E5F6A7B801234567890ABCDEF1234567890A",
     "name": "Kacper Zieliński",
     "licenseNumber": "PLT-99302",
     "rating": 3,
     "totalRides": 97
   },
   {
-    "address": "0xD4E5F6A7B8C901234567890ABCDEF1234567890A",
+    "pilotAddress": "0xD4E5F6A7B8C901234567890ABCDEF1234567890A",
     "name": "Michał Wiśniewski",
     "licenseNumber": "PLT-10567",
     "rating": 4,
     "totalRides": 158
   },
   {
-    "address": "0xE5F6A7B8C9D001234567890ABCDEF1234567890A",
+    "pilotAddress": "0xE5F6A7B8C9D001234567890ABCDEF1234567890A",
     "name": "Piotr Wójcik",
     "licenseNumber": "PLT-32058",
     "rating": 5,
