@@ -13,3 +13,12 @@ app.use(createPinia())
 app.use(router)
 
 app.mount('#app')
+
+
+if (window.ethereum) {
+    window.ethereum.on('disconnect', (error: Error) => {
+      console.warn('Wallet has disconnected:', error)
+        // Update your UI or app state accordingly
+      window.location.href = '/'
+    })
+}

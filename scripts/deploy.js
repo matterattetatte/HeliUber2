@@ -46,6 +46,7 @@ async function main() {
 
     const pilotSigner = pilotSigners[index];
 
+    // TODO: USE IPFS AND ALSO INCLUDE AN IMAGE URL
     const tx = await heliuber.connect(pilotSigner).registerPilot(pilot.name, pilot.licenseNumber);
     await tx.wait();
     console.log(`Registered pilot: ${pilot.name} with license ${pilot.licenseNumber}`);

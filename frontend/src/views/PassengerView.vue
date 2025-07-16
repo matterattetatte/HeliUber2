@@ -1,76 +1,59 @@
 <template>
   <div class="w-full h-screen">
     <h1 class="text-lg font-bold pb-2">Select a start and end location</h1>
-      <LMap :zoom="5" ref="mapRef" @ready="onMapReady" :center="[center[0], center[1]]" style="height: 50%; width: 80%; margin-left: 10%;">
-        <LTileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution="&copy OpenStreetMap contributors"
-        />
-        <LMarkerClusterGroup v-if="!endLocation">
-          <LMarker
-            v-for="loc in locations"
-            :key="loc.name"
-            :lat-lng="[loc.latitude_deg, loc.longitude_deg]"
-            @click="handleMarkerClick(loc, startLocation ? 'endLocation' : 'startLocation')"
-          />
-        </LMarkerClusterGroup>
-      </LMap>
+    <LMap :zoom="5" ref="mapRef" @ready="onMapReady" :center="[center[0], center[1]]"
+      style="height: 50%; width: 80%; margin-left: 10%;">
+      <LTileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution="&copy OpenStreetMap contributors" />
+      <LMarkerClusterGroup v-if="!endLocation">
+        <LMarker v-for="loc in locations" :key="loc.name" :lat-lng="[loc.latitude_deg, loc.longitude_deg]"
+          @click="handleMarkerClick(loc, startLocation ? 'endLocation' : 'startLocation')" />
+      </LMarkerClusterGroup>
+    </LMap>
 
-      <div class="p-6 grid md:grid-cols-3 gap-6">
-        <InfoCard
-          title="Start"
-          :label="startLocation ? startLocation.name : 'Select a start'"
-          :sub="startLocation ? startLocation.municipality : ''"
-        />
-        <InfoCard
-          title="End"
-          :label="endLocation ? endLocation.name : 'Select an end'"
-          :sub="endLocation ? endLocation.municipality : ''"
-        />
-        <InfoCard
-          title="Summary"
-          :label="startLocation && endLocation ? `${distanceKm} km` : 'Select locations'"
-          :sub="startLocation && endLocation ? `${price} PLN` : ''"
-        />
+    <div class="p-6 grid md:grid-cols-3 gap-6">
+      <InfoCard title="Start" :label="startLocation ? startLocation.name : 'Select a start'"
+        :sub="startLocation ? startLocation.municipality : ''" />
+      <InfoCard title="End" :label="endLocation ? endLocation.name : 'Select an end'"
+        :sub="endLocation ? endLocation.municipality : ''" />
+      <InfoCard title="Summary" :label="startLocation && endLocation ? `${distanceKm} km` : 'Select locations'"
+        :sub="startLocation && endLocation ? `${price} S` : ''" />
       <button @click="clearSelection()" class="bg-red-500 text-white px-4 py-2 rounded">
         Clear Selection
       </button>
       <button @click="showModal = true" class="bg-blue-500 text-white px-4 py-2 rounded">
         Continue to Checkout
       </button>
-      </div>
-      <BaseModal
-        v-model:show="showModal"
-        title="Checkout"
-      >
-        <template #default>
-          <div class="space-y-4">
-            <p class="text-gray-700">Start Location: {{ startLocation ? startLocation.name : 'Not selected' }}</p>
-            <p class="text-gray-700">End Location: {{ endLocation ? endLocation.name : 'Not selected' }}</p>
-            <p class="text-gray-700">Distance: {{ distanceKm }} km</p>
-            <p class="text-gray-700">Price: {{ price }} PLN</p>
-            <p class="text-gray-700">Pilot Details:</p>
-            <div class="bg-gray-100 p-4 rounded" v-if="pilot">
-              <p class="text-gray-600">Pilot Address: {{ pilot.address }}</p>
-              <p class="text-gray-600">Pilot Name: {{ pilot.name }}</p>
-              <p class="text-gray-600">License Number: {{ pilot.licenseNumber }}</p>
-              <p class="text-gray-600">Rating: {{ pilot.rating }} ⭐</p>
-              <p class="text-gray-600">Total Rides: {{ pilot.totalRides }}</p>
-            </div>
-            <div v-else class="bg-gray-100 p-4 rounded">
-              Fetching pilot details...
-            </div>
+    </div>
+    <BaseModal v-model:show="showModal" title="Checkout">
+      <template #default>
+        <div class="space-y-4">
+          <p class="text-gray-700">Start Location: {{ startLocation ? startLocation.name : 'Not selected' }}</p>
+          <p class="text-gray-700">End Location: {{ endLocation ? endLocation.name : 'Not selected' }}</p>
+          <p class="text-gray-700">Distance: {{ distanceKm }} km</p>
+          <p class="text-gray-700">Price: {{ price }} S</p>
+          <p class="text-gray-700">Pilot Details:</p>
+          <div class="bg-gray-100 p-4 rounded" v-if="pilot">
+            <p class="text-gray-600">Pilot Address: {{ pilot.address }}</p>
+            <p class="text-gray-600">Pilot Name: {{ pilot.name }}</p>
+            <p class="text-gray-600">License Number: {{ pilot.licenseNumber }}</p>
+            <p class="text-gray-600">Rating: {{ pilot.rating }} ⭐</p>
+            <p class="text-gray-600">Total Rides: {{ pilot.totalRides }}</p>
           </div>
-        </template>
-        <template #footer>
-          <button @click="showModal = false" class="bg-gray-300 px-4 py-2 rounded">
-            Close
-          </button>
-          <button @click="confirmCheckout" class="bg-blue-500 text-white px-4 py-2 rounded">
-            Confirm Checkout
-          </button>
-        </template>
-      </BaseModal>
+          <div v-else class="bg-gray-100 p-4 rounded">
+            Fetching pilot details...
+          </div>
+        </div>
+      </template>
+      <template #footer>
+        <button @click="showModal = false" class="bg-gray-300 px-4 py-2 rounded">
+          Close
+        </button>
+        <button @click="confirmCheckout" class="bg-blue-500 text-white px-4 py-2 rounded">
+          Confirm Checkout
+        </button>
+      </template>
+    </BaseModal>
   </div>
 </template>
 
@@ -79,14 +62,15 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { LMap, LTileLayer, LMarker } from '@vue-leaflet/vue-leaflet'
 import * as L from "leaflet"
 import { spline } from 'leaflet-spline'
-import { LMarkerClusterGroup  } from 'vue-leaflet-markercluster'
+import { LMarkerClusterGroup } from 'vue-leaflet-markercluster'
 import markerIconUrl from "leaflet/dist/images/marker-icon.png"
 import markerIconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png"
 import markerShadowUrl from "leaflet/dist/images/marker-shadow.png"
 import InfoCard from '@/components/cards/InfoCard.vue'
 import BaseModal from '@/components/modals/BaseModal.vue'
 import HeliUberContract from '@/abis/HeliUber.json'
-import { publicClient } from '@/clients'
+import { publicClient, walletClient } from '@/clients'
+import { stringToBytes, toBytes } from 'viem'
 
 L.Icon.Default.mergeOptions({
   iconUrl: markerIconUrl,
@@ -110,7 +94,7 @@ const onMapReady = () => {
 const clearSelection = () => {
   startLocation.value = null
   endLocation.value = null
-  
+
   // clear all markers from the map
   if (map) {
     map.eachLayer((layer) => {
@@ -144,7 +128,7 @@ const handleMarkerClick = (marker: Port, type: string) => {
   if (type === 'startLocation') {
     startLocation.value = marker
     console.log('Start location selected:', startLocation.value)
-    
+
     const startLatLng = [
       marker.latitude_deg,
       marker.longitude_deg
@@ -161,9 +145,9 @@ const handleMarkerClick = (marker: Port, type: string) => {
     console.log('End location selected:', endLocation.value)
 
     const startLatLng = [
-          startLocation.value?.latitude_deg,
-          startLocation.value?.longitude_deg
-        ] as L.LatLngTuple
+      startLocation.value?.latitude_deg,
+      startLocation.value?.longitude_deg
+    ] as L.LatLngTuple
     const endLatLng = [
       marker.latitude_deg,
       marker.longitude_deg
@@ -180,7 +164,7 @@ const handleMarkerClick = (marker: Port, type: string) => {
       ],
       { color: 'blue', weight: 3, smoothing: 0.5 }
     ).addTo(map)
-    map.fitBounds(curveLayer.getBounds(), { padding:[50,50], animate:true })
+    map.fitBounds(curveLayer.getBounds(), { padding: [50, 50], animate: true })
     L.marker(startLatLng).addTo(map).bindPopup(`Start: ${startLocation.value?.name}`).openPopup()
     L.marker(endLatLng).addTo(map).bindPopup(`End: ${marker.name}`).openPopup()
   }
@@ -208,10 +192,50 @@ const distanceKm = computed(() => {
 })
 
 const price = computed(() => {
-  const ratePerKm = 5 // Example rate per km
-  return +(distanceKm.value * ratePerKm).toFixed(2) // Price, rounded to 2 decimals
+  const ratePerKm = 5 // S per km
+  return Math.round(distanceKm.value * ratePerKm)
 })
 
+const confirmCheckout = async () => {
+  if (!startLocation.value || !endLocation.value || !pilot.value) {
+    console.error('Missing required information for booking')
+    return
+  }
+
+  const args = [
+    pilot.value.address,
+    price.value,          // price in wei, already bigint
+    // destinationBytes //TODO: WE MUST INCLUDE FROM AND TO COORDINATES!
+    toBytes([endLocation.value.latitude_deg, endLocation.value.longitude_deg].join(','), { size: 32 }),
+  ]
+
+  // book a ride with smart contract
+  const simulate = await publicClient.simulateContract({
+    account: walletClient.account,
+    address: import.meta.env.VITE_HELIUBER_ADDRESS as `0x${string}`,
+    abi: HeliUberContract.abi,
+    functionName: 'bookRide',
+    args,
+    value: BigInt(price.value),
+  })
+  console.log('Simulation OK:', simulate)
+
+  // 2️⃣ Execute the transaction
+  const txHash = await walletClient.writeContract({
+    account: String(walletClient.account) as `0x${string}`,
+    address: import.meta.env.VITE_HELIUBER_ADDRESS as `0x${string}`,
+    abi: HeliUberContract.abi,
+    functionName: 'bookRide',
+    args,
+    value: BigInt(price.value),
+  })
+  console.log('Tx sent:', txHash)
+
+  // 3️⃣ Await confirmation
+  await publicClient.waitForTransactionReceipt({ hash: txHash })
+  console.log('Ride booked! ✅')
+
+}
 
 onMounted(async () => {
   const resp = await fetch(new URL(`../assets/airports_${country}.json`, import.meta.url))
@@ -246,7 +270,7 @@ watch(showModal, async (newValue) => {
       licenseNumber: pilotData.licenseNumber,
       rating: pilotData.rating,
       totalRides: pilotData.totalRides
-    }    
+    }
   } else {
     pilot.value = null
   }
