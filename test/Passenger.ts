@@ -1,3 +1,7 @@
+import { expect } from "chai"
+import { ethers } from "hardhat"
+import { tokens } from "./HeliUber"
+
 describe("Passenger", () => {
   // describe creating pilot profile
   let heliUber, deployer, passenger, transaction

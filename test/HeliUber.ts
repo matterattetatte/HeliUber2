@@ -2,11 +2,9 @@ import "@nomicfoundation/hardhat-chai-matchers";
 import { expect } from "chai"
 import { ethers } from "hardhat"
 
-global.expect = expect
-global.ethers = ethers
-global.tokens = (n: number) => ethers.parseEther(n.toString())
+export const tokens = (n: number) => ethers.parseEther(n.toString())
 
-global.expectBalanceChange = (actualDelta: bigint, expectedDelta: bigint, options: { allowGreater?: boolean; epsilon?: bigint; allowLess?: boolean } = {}) => {
+export const expectBalanceChange = (actualDelta: bigint, expectedDelta: bigint, options: { allowGreater?: boolean; epsilon?: bigint; allowLess?: boolean } = {}) => {
   const allowGreater = options.allowGreater ?? false;
   const allowLess = options.allowLess ?? false;
   const epsilon = options.epsilon ?? ethers.parseEther("0.001");
