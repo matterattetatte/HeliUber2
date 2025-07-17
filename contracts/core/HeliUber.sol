@@ -15,6 +15,8 @@ contract HeliUber is IHeliUber, Booking, Payment, Pilot, Passenger {
         uint256 price,
         bytes32 destination
     ) external payable {
+        // remove payable, also we need to include token that is transfered among the args  IERC20(paymentToken).transferFrom(msg.sender, address(this), amount);
+
         uint256 rideId = createBooking(
             msg.sender,
             pilot,

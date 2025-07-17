@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
- * @title PLNCStablecoin
+ * @title PLNC
  * @dev A very basic mock stablecoin contract.
  * This contract demonstrates a simple ERC-20 token with
  * owner-controlled minting and burning capabilities.
@@ -15,7 +15,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * governance, real-world pegging logic) required for a functional, secure,
  * and truly stable stablecoin in a production environment.
  */
-contract PLNCStablecoin is ERC20, Ownable {
+contract PLNC is ERC20, Ownable {
 
     /**
      * @dev Constructor that sets the token name and symbol.

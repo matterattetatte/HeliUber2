@@ -10,7 +10,8 @@
     "deploy:sonic": "hardhat compile && hardhat run scripts/deploy.js --network sonic",
     "node:local": "hardhat node --port 8545",
     "deploy:local": "hardhat compile && hardhat run scripts/deploy.js --network localhost",
-    "symlink:heliuber": "mkdir -p frontend/src/abis && ln -sf \"$PWD/artifacts/contracts/core/HeliUber.sol/HeliUber.json\" frontend/src/abis/HeliUber.json && ln -sf \"$PWD/artifacts/contracts/core/HeliUber.sol/HeliUber.db.json\" frontend/src/abis/HeliUber.db.json"
+    "symlink:heliuber": "mkdir -p frontend/src/abis && ln -sf \"$PWD/artifacts/contracts/core/HeliUber.sol/HeliUber.json\" frontend/src/abis/HeliUber.json && ln -sf \"$PWD/artifacts/contracts/core/HeliUber.sol/HeliUber.dbg.json\" frontend/src/abis/HeliUber.db.json",
+    "symlink:plnc": "mkdir -p frontend/src/abis && ln -sf \"$PWD/artifacts/contracts/mock/PLNC.sol/PLNC.json\" frontend/src/abis/PLNC.json && ln -sf \"$PWD/artifacts/contracts/mock/PLNC.sol/PLNC.dbg.json\" frontend/src/abis/PLNC.db.json"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.9",
