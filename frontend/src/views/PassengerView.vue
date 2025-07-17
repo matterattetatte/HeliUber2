@@ -35,7 +35,7 @@
           <p class="text-gray-700">Pilot Details:</p>
           <div class="bg-gray-100 p-4 rounded" v-if="pilot">
             <img :src="pilot.imageUrl" class="w-1/3 rounded-full" />
-            <p class="text-gray-600">Pilot Address: 
+            <p class="text-gray-600">Pilot Address:
               <a :href="`https://testnet.soniclabs.com/address/${pilot.address}`" target="_blank">
                 {{ pilot.address }}
               </a>
@@ -75,7 +75,7 @@ import InfoCard from '@/components/cards/InfoCard.vue'
 import BaseModal from '@/components/modals/BaseModal.vue'
 import HeliUberContract from '@/abis/HeliUber.json'
 import { publicClient, walletClient } from '@/clients'
-import { stringToBytes, toBytes } from 'viem'
+import { toHex } from 'viem'
 
 L.Icon.Default.mergeOptions({
   iconUrl: markerIconUrl,
@@ -207,39 +207,44 @@ const confirmCheckout = async () => {
     return
   }
 
+  // const destination = encodePacked(['int256', 'int256'], [BigInt(endLocation.value.latitude_deg), BigInt(endLocation.value.longitude_deg)]);
   const args = [
     pilot.value.address,
     price.value,          // price in wei, already bigint
     // destinationBytes //TODO: WE MUST INCLUDE FROM AND TO COORDINATES!
-    toBytes([endLocation.value.latitude_deg, endLocation.value.longitude_deg].join(','), { size: 32 }),
+    toHex(`${endLocation.value.latitude_deg},${endLocation.value.latitude_deg}`, { size: 32 })
+    // stringToBytes(`${endLocation.value.latitude_deg},${endLocation.value.latitude_deg}`, { size: 32 }),
   ]
 
-  // book a ride with smart contract
-  const simulate = await publicClient.simulateContract({
-    account: walletClient.account,
-    address: import.meta.env.VITE_HELIUBER_ADDRESS as `0x${string}`,
-    abi: HeliUberContract.abi,
-    functionName: 'bookRide',
-    args,
-    value: BigInt(price.value),
-  })
-  console.log('Simulation OK:', simulate)
+  try {
+    // book a ride with smart contract
+    const simulate = await publicClient.simulateContract({
+      account: walletClient.account,
+      address: import.meta.env.VITE_HELIUBER_ADDRESS as `0x${string}`,
+      abi: HeliUberContract.abi,
+      functionName: 'bookRide',
+      args,
+      value: BigInt(price.value),
+    })
+    console.log('Simulation OK:', simulate)
 
-  // 2️⃣ Execute the transaction
-  const txHash = await walletClient.writeContract({
-    account: String(walletClient.account) as `0x${string}`,
-    address: import.meta.env.VITE_HELIUBER_ADDRESS as `0x${string}`,
-    abi: HeliUberContract.abi,
-    functionName: 'bookRide',
-    args,
-    value: BigInt(price.value),
-  })
-  console.log('Tx sent:', txHash)
+    // 2️⃣ Execute the transaction
+    const txHash = await walletClient.writeContract({
+      account: String(walletClient.account) as `0x${string}`,
+      address: import.meta.env.VITE_HELIUBER_ADDRESS as `0x${string}`,
+      abi: HeliUberContract.abi,
+      functionName: 'bookRide',
+      args,
+      value: BigInt(price.value),
+    })
+    console.log('Tx sent:', txHash)
 
-  // 3️⃣ Await confirmation
-  await publicClient.waitForTransactionReceipt({ hash: txHash })
-  console.log('Ride booked! ✅')
-
+    // 3️⃣ Await confirmation
+    await publicClient.waitForTransactionReceipt({ hash: txHash })
+    console.log('Ride booked! ✅')
+  } catch (e) {
+    window.alert((e as Error).message.split('Details: ')[1].split('\n')[0])
+  }
 }
 
 onMounted(async () => {
