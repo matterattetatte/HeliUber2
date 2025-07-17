@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.20;
 
 contract HeliStorage {
     enum RideStatus { Pending, Paid, PassengerConfirmed, DriverConfirmed, BothConfirmed, Completed, Cancelled }

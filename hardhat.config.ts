@@ -12,7 +12,7 @@ import '@nomicfoundation/hardhat-chai-matchers'
 const SONIC_PRIVATE_KEY = process.env.SONIC_PRIVATE_KEY
 
 module.exports = {
-  solidity: "0.8.17",
+  solidity: "0.8.20",
   networks: {
     sonic: {
       url: "https://rpc.blaze.soniclabs.com",
