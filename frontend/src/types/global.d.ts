@@ -24,6 +24,7 @@ declare global {
     address: string;
     name: string;
     licenseNumber: string;
+    imageUrl: string;
     rating: number;
     totalRides: number;
   }

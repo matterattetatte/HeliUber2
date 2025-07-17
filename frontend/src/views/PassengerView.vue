@@ -34,13 +34,18 @@
           <p class="text-gray-700">Price: {{ price }} S</p>
           <p class="text-gray-700">Pilot Details:</p>
           <div class="bg-gray-100 p-4 rounded" v-if="pilot">
-            <p class="text-gray-600">Pilot Address: {{ pilot.address }}</p>
+            <img :src="pilot.imageUrl" class="w-1/3 rounded-full" />
+            <p class="text-gray-600">Pilot Address: 
+              <a :href="`https://testnet.soniclabs.com/address/${pilot.address}`" target="_blank">
+                {{ pilot.address }}
+              </a>
+            </p>
             <p class="text-gray-600">Pilot Name: {{ pilot.name }}</p>
             <p class="text-gray-600">License Number: {{ pilot.licenseNumber }}</p>
             <p class="text-gray-600">Rating: {{ pilot.rating }} ⭐</p>
             <p class="text-gray-600">Total Rides: {{ pilot.totalRides }}</p>
           </div>
-          <div v-else class="bg-gray-100 p-4 rounded">
+          <div v-else class="bg-gray-100 p-4">
             Fetching pilot details...
           </div>
         </div>
@@ -268,6 +273,7 @@ watch(showModal, async (newValue) => {
       address: pilotId,
       name: pilotData.name,
       licenseNumber: pilotData.licenseNumber,
+      imageUrl: pilotData.imageUrl,
       rating: pilotData.rating,
       totalRides: pilotData.totalRides
     }

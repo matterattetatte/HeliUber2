@@ -2,6 +2,7 @@
   {
     "pilotAddress": "0x5A64167dCE9bC75cCe77491985A02d35723A5460",
     "name": "Jakub Nowak",
+    "imageUrl": "https://static.vecteezy.com/system/resources/previews/031/606/447/non_2x/pilot-avatar-ilustration-free-vector.jpg",
     "licenseNumber": "PLT-43219",
     "rating": 5,
     "totalRides": 182
@@ -9,6 +10,7 @@
   {
     "pilotAddress": "0xa10470C0F296E598945710b3100ca4CC2B43bA20",
     "name": "Wojciech Kowalski",
+    "imageUrl": "https://thumbs.dreamstime.com/b/avatar-pilot-character-avatar-pilot-character-your-project-others-269631534.jpg",
     "licenseNumber": "PLT-78541",
     "rating": 4,
     "totalRides": 241

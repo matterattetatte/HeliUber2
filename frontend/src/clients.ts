@@ -10,3 +10,6 @@ export const walletClient = createWalletClient({
   chain: sonicBlazeTestnet,
   transport: custom(window.ethereum),
 })
+
+
+console.log('wallet client', walletClient)

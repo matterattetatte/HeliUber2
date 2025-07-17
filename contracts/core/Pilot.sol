@@ -8,6 +8,7 @@ contract Pilot is HeliStorage {
         address pilotAddress;
         string name;
         string licenseNumber;
+        string imageUrl;
         uint256 rating;
         uint256 totalRides;
     }
@@ -19,7 +20,8 @@ contract Pilot is HeliStorage {
 
     function registerPilot(
         string memory name,
-        string memory licenseNumber
+        string memory licenseNumber,
+        string memory imageUrl
     ) public {
         require(bytes(name).length > 0, "Name cannot be empty");
         require(bytes(licenseNumber).length > 0, "License number cannot be empty");
@@ -28,6 +30,7 @@ contract Pilot is HeliStorage {
         pilot.pilotAddress = msg.sender;
         pilot.name = name;
         pilot.licenseNumber = licenseNumber;
+        pilot.imageUrl = imageUrl;
         pilot.rating = 0;
         pilot.totalRides = 0;
 

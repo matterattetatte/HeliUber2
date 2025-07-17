@@ -14,11 +14,12 @@ app.use(router)
 
 app.mount('#app')
 
-
 if (window.ethereum) {
-    window.ethereum.on('disconnect', (error: Error) => {
-      console.warn('Wallet has disconnected:', error)
-        // Update your UI or app state accordingly
+  window.ethereum.on('accountsChanged', (accounts: string[]) => {
+    if (accounts.length === 0) {
       window.location.href = '/'
-    })
+    } else {
+      console.log('🔑 Wallet connected/changed:', accounts[0]);
+    }
+  });
 }
