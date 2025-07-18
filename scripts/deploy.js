@@ -16,9 +16,12 @@ async function main() {
   // Setup accounts
   const [deployer, ...pilotSigners] = await ethers.getSigners()
 
+  const PLNC = await hre.ethers.getContractFactory("PLNC")
+  const plnc = await PLNC.deploy(deployer.address)
+
   // Deploy HeliUber
   const HeliUber = await hre.ethers.getContractFactory("HeliUber")
-  const heliuber = await HeliUber.deploy()
+  const heliuber = await HeliUber.deploy(await plnc.getAddress())
   await heliuber.waitForDeployment()
 
   const address = await heliuber.getAddress()

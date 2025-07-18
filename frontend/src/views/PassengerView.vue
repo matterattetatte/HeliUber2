@@ -17,7 +17,7 @@
       <InfoCard title="End" :label="endLocation ? endLocation.name : 'Select an end'"
         :sub="endLocation ? endLocation.municipality : ''" />
       <InfoCard title="Summary" :label="startLocation && endLocation ? `${distanceKm} km` : 'Select locations'"
-        :sub="startLocation && endLocation ? `${price} S` : ''" />
+        :sub="startLocation && endLocation ? `${price} PLN` : ''" />
       <button @click="clearSelection()" class="bg-red-500 text-white px-4 py-2 rounded">
         Clear Selection
       </button>
@@ -31,7 +31,7 @@
           <p class="text-gray-700">Start Location: {{ startLocation ? startLocation.name : 'Not selected' }}</p>
           <p class="text-gray-700">End Location: {{ endLocation ? endLocation.name : 'Not selected' }}</p>
           <p class="text-gray-700">Distance: {{ distanceKm }} km</p>
-          <p class="text-gray-700">Price: {{ price }} S</p>
+          <p class="text-gray-700">Price: {{ price }} PLN</p>
           <p class="text-gray-700">Pilot Details:</p>
           <div class="bg-gray-100 p-4 rounded" v-if="pilot">
             <img :src="pilot.imageUrl" class="w-1/3 rounded-full" />
@@ -224,7 +224,6 @@ const confirmCheckout = async () => {
       abi: HeliUberContract.abi,
       functionName: 'bookRide',
       args,
-      value: BigInt(price.value),
     })
     console.log('Simulation OK:', simulate)
 
@@ -235,7 +234,6 @@ const confirmCheckout = async () => {
       abi: HeliUberContract.abi,
       functionName: 'bookRide',
       args,
-      value: BigInt(price.value),
     })
     console.log('Tx sent:', txHash)
 
@@ -243,6 +241,7 @@ const confirmCheckout = async () => {
     await publicClient.waitForTransactionReceipt({ hash: txHash })
     console.log('Ride booked! ✅')
   } catch (e) {
+    console.log('e', e)
     window.alert((e as Error).message.split('Details: ')[1].split('\n')[0])
   }
 }
