@@ -8,8 +8,12 @@ describe("Passenger", () => {
 
   beforeEach(async () => {
     [deployer, passenger] = await ethers.getSigners()
+
+    const PLNC = await ethers.getContractFactory("PLNC")
+    const plnc = await PLNC.deploy(deployer.address)
+
     const HeliUber = await ethers.getContractFactory("HeliUber")
-    heliUber = await HeliUber.deploy()
+    heliUber = await HeliUber.deploy(await plnc.getAddress())
   })
 
   it("gets empty profile", async () => {

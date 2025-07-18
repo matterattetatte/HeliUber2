@@ -2,7 +2,8 @@
 pragma solidity ^0.8.20;
 
 import "../storage/HeliStorage.sol";
-
+import "../mock/PLNC.sol";
+ 
 contract Payment is HeliStorage {
     // Passenger pays ETH for the ride
     function processPayment(address passenger, uint256 rideId) internal {
@@ -11,15 +12,15 @@ contract Payment is HeliStorage {
         ride.status = RideStatus.Paid;
     }
 
-   function releasePayment(address passenger, uint256 rideId) internal {
+    function releasePayment(address passenger, uint256 rideId, PLNC plnc) internal {
         Ride storage ride = rides[passenger][rideId];
         require(ride.status == RideStatus.BothConfirmed, "Not both confirmed");
 
         uint256 pilotAmount = ride.price * 99 / 100;
 
-        ride.status = RideStatus.Completed;
+        bool sent = plnc.transfer(ride.pilot, pilotAmount);
+        require(sent, "Failed to send tokens to pilot");
 
-        (bool sent, ) = payable(ride.pilot).call{ value: pilotAmount }("");
-        require(sent, "Failed to send to pilot");
+        ride.status = RideStatus.Completed;
     }
 }

@@ -8,8 +8,12 @@ describe("Pilot", () => {
 
   beforeEach(async () => {
     [deployer, pilot] = await ethers.getSigners()
+
+    const PLNC = await ethers.getContractFactory("PLNC")
+    const plnc = await PLNC.deploy(deployer.address)
+
     const HeliUber = await ethers.getContractFactory("HeliUber")
-    heliUber = await HeliUber.deploy()
+    heliUber = await HeliUber.deploy(await plnc.getAddress())
   })
 
   it("gets empty profile", async () => {
@@ -22,9 +26,10 @@ describe("Pilot", () => {
     const profile = {
       name: "John Doe",
       licenseNumber: "XYZ123",
+      imageUrl: "https://static.vecteezy.com/system/resources/previews/031/606/447/non_2x/pilot-avatar-ilustration-free-vector.jpg",
     }
 
-    transaction = await heliUber.connect(pilot).registerPilot(profile.name, profile.licenseNumber)
+    transaction = await heliUber.connect(pilot).registerPilot(profile.name, profile.licenseNumber, profile.imageUrl)
     await transaction.wait()
 
     const allPilots = await heliUber.getPilotsList()

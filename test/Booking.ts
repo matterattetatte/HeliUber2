@@ -4,21 +4,27 @@ import { expectBalanceChange, tokens } from "./HeliUber"
 
 describe("Booking", () => {
   describe("Creating Booking", () => {
-    let heliUber, passenger, deployer, pilot, transaction
+    let heliUber, plnc, passenger, deployer, pilot, transaction
 
     beforeEach(async () => {
-      // Get signers
       [deployer, passenger, pilot] = await ethers.getSigners()
 
+      const PLNC = await ethers.getContractFactory("PLNC")
+      plnc = await PLNC.deploy(deployer.address)
+
       const HeliUber = await ethers.getContractFactory("HeliUber")
-      heliUber = await HeliUber.deploy()
+      heliUber = await HeliUber.deploy(await plnc.getAddress())
+
+      await plnc.connect(deployer).mint(passenger.address, tokens(1000))
     })
     it("create booking and process payment", async () => {
       const destination = ethers.encodeBytes32String("Somewhere")
 
-      const token = tokens(0.1)
+      const token = tokens(100)
 
-      const tx = await heliUber.connect(passenger).bookRide(pilot.address, token, destination, { value: token })
+      await plnc.connect(passenger).approve(await heliUber.getAddress(), token);
+
+      const tx = await heliUber.connect(passenger).bookRide(pilot.address, token, destination)
       await tx.wait()
 
       expect(tx).to.emit(heliUber, "RideBooked")
@@ -39,10 +45,13 @@ describe("Booking", () => {
       // populate data first
       const destination = ethers.encodeBytes32String("Somewhere")
       const token = tokens(0.1)
-      const tx1 = await heliUber.connect(passenger).bookRide(pilot.address, token, destination, { value: token })
+
+      await plnc.connect(passenger).approve(await heliUber.getAddress(), token * 2n);
+
+      const tx1 = await heliUber.connect(passenger).bookRide(pilot.address, token, destination)
       await tx1.wait()
       
-      const tx2 = await heliUber.connect(passenger).bookRide(pilot.address, token, destination, { value: token })
+      const tx2 = await heliUber.connect(passenger).bookRide(pilot.address, token, destination)
       await tx2.wait()
       expect(tx2).to.emit(heliUber, "RideBooked")
 
@@ -51,23 +60,31 @@ describe("Booking", () => {
     })
   })
   describe("Confirming Booking", () => {
-    let heliUber, deployer, passenger, pilot, transaction, token, initialPassengerBalance, initialPilotBalance, initialContractBalance, contractAddress
+    let heliUber, deployer, passenger, pilot, plnc, transaction, token, initialPassengerBalance, initialPilotBalance, initialheliUberBalance, heliUberAddress
 
     beforeEach(async () => {
       [deployer, passenger, pilot] = await ethers.getSigners()
 
-      const HeliUber = await ethers.getContractFactory("HeliUber")
-      heliUber = await HeliUber.deploy()
+      const PLNC = await ethers.getContractFactory("PLNC")
+      plnc = await PLNC.deploy(deployer.address)
 
-      initialPassengerBalance = await ethers.provider.getBalance(passenger.address)
-      initialPilotBalance = await ethers.provider.getBalance(pilot.address)
-      contractAddress = await heliUber.getAddress()
-      initialContractBalance = await ethers.provider.getBalance(contractAddress)
+      const HeliUber = await ethers.getContractFactory("HeliUber")
+      heliUber = await HeliUber.deploy(await plnc.getAddress())
+
+      await plnc.connect(deployer).mint(passenger.address, tokens(1000))
+
+      initialPassengerBalance = await plnc.balanceOf(passenger.address)
+      initialPilotBalance = await plnc.balanceOf(pilot.address)
+      heliUberAddress = await heliUber.getAddress()
+      initialheliUberBalance = await plnc.balanceOf(heliUberAddress)
 
       // Create a booking
       const destination = ethers.encodeBytes32String("Somewhere")
       token = tokens(0.1)
-      transaction = await heliUber.connect(passenger).bookRide(pilot.address, token, destination, { value: token })
+
+      await plnc.connect(passenger).approve(await heliUber.getAddress(), token);
+
+      transaction = await heliUber.connect(passenger).bookRide(pilot.address, token, destination)
       await transaction.wait()
     })
 
@@ -87,13 +104,13 @@ describe("Booking", () => {
       // Check ride status after pilot confirmation
       expect(rides[0].status).to.equal(2) // BothConfirmed
 
-      const passengerBalance = await ethers.provider.getBalance(passenger.address)
-      const pilotBalance = await ethers.provider.getBalance(pilot.address)
-      const contractBalance = await ethers.provider.getBalance(contractAddress)
+      const passengerBalance = await plnc.balanceOf(passenger.address)
+      const pilotBalance = await plnc.balanceOf(pilot.address)
+      const heliUberBalance = await plnc.balanceOf(heliUberAddress)
 
       expect(passengerBalance).to.be.lessThan(initialPassengerBalance)
       expect(pilotBalance).to.be.greaterThan(initialPilotBalance)
-      expect(contractBalance).to.be.greaterThan(initialContractBalance)
+      expect(heliUberBalance).to.be.greaterThan(initialheliUberBalance)
     })
     it("should confirm booking by pilot first", async () => {
       transaction = await heliUber.connect(pilot).confirmRide(passenger.address, 0)
@@ -109,13 +126,13 @@ describe("Booking", () => {
 
       expect(updatedRides[0].status).to.equal(5) // Completed
 
-      const passengerBalance = await ethers.provider.getBalance(passenger.address)
-      const pilotBalance = await ethers.provider.getBalance(pilot.address)
-      const contractBalance = await ethers.provider.getBalance(contractAddress)
+      const passengerBalance = await plnc.balanceOf(passenger.address)
+      const pilotBalance = await plnc.balanceOf(pilot.address)
+      const heliUberBalance = await plnc.balanceOf(heliUberAddress)
 
       const passengerDelta = initialPassengerBalance - passengerBalance;
       const pilotDelta     = pilotBalance - initialPilotBalance;
-      const contractDelta  = contractBalance - initialContractBalance;
+      const contractDelta  = heliUberBalance - initialheliUberBalance;
 
       expectBalanceChange(passengerDelta, token, { allowGreater: true });
       expectBalanceChange(pilotDelta, token * 99n / 100n, { allowLess: true });

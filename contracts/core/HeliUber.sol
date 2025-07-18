@@ -7,15 +7,21 @@ import "./Payment.sol";
 import "./Pilot.sol";
 import "./Passenger.sol";
 import "../interfaces/IHeliUber.sol";
-
+import "../mock/PLNC.sol";
 
 contract HeliUber is IHeliUber, Booking, Payment, Pilot, Passenger {
+    PLNC public plncToken;
+
+    constructor(PLNC _plncToken) {
+        plncToken = _plncToken;
+    }
+
     function bookRide(
         address pilot,
         uint256 price,
         bytes32 destination
-    ) external payable {
-        // remove payable, also we need to include token that is transfered among the args  IERC20(paymentToken).transferFrom(msg.sender, address(this), amount);
+    ) external {
+        require(plncToken.transferFrom(msg.sender, address(this), price), "Payment failed");
 
         uint256 rideId = createBooking(
             msg.sender,
@@ -38,7 +44,7 @@ contract HeliUber is IHeliUber, Booking, Payment, Pilot, Passenger {
         emit RideConfirmed(rideId, msg.sender);
 
         if (isBothConfirmed) {
-            releasePayment(passenger, rideId);
+            releasePayment(passenger, rideId, plncToken);
             emit RideCompleted(rideId);
         }
     }
