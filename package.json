@@ -2,9 +2,6 @@
   "name": "heliuber",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {
-    "dotenv": "^17.2.0"
-  },
   "scripts": {
     "hh:test:debug": "node --inspect-brk node_modules/.bin/hardhat test",
     "deploy:sonic": "hardhat compile && hardhat run scripts/deploy.js --network sonic",
@@ -15,9 +12,11 @@
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.9",
-    "@nomicfoundation/hardhat-toolbox": "^6.0.0",
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "@nomicfoundation/hardhat-verify": "^2.1.0",
     "@openzeppelin/contracts-upgradeable": "^5.3.0",
     "@types/chai": "^4.3.20",
+    "dotenv": "^17.2.0",
     "hardhat": "^2.25.0"
   }
 }

@@ -75,6 +75,11 @@ async function main() {
 
 
   writeFileSync('./frontend/.env', `VITE_HELIUBER_CONTRACT_ADDRESS=${address}\nVITE_PLNC_CONTRACT_ADDRESS=${plncAddress}`, { flag: 'w' })
+
+  await hre.run("verify:verify", {
+    address,
+    constructorArguments: [plncAddress],
+  });
 }
 
 // We recommend this pattern to be able to use async/await everywhere
