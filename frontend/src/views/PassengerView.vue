@@ -220,6 +220,24 @@ const confirmCheckout = async () => {
 
   try {
     const [account] = (await walletClient.getAddresses())
+    const balance = await publicClient.readContract({
+      address: PLNC_CONTRACT_ADDRESS,
+      abi: PLNC_ABI,
+      functionName: 'balanceOf',
+      args: [account],
+    })
+    console.log('PLNC balance:', balance);
+
+    const simulationApproveTx = await publicClient.simulateContract({
+      account,
+      address: PLNC_CONTRACT_ADDRESS,
+      abi: PLNC_ABI,
+      functionName: 'approve',
+      args: [HELIUBER_CONTRACT_ADDRESS, parsedPrice],
+    })
+
+    console.log('foo', simulationApproveTx)
+
     const approveTx = await walletClient.writeContract({
       account,
       address: PLNC_CONTRACT_ADDRESS,

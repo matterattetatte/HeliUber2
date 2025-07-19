@@ -60,7 +60,7 @@ async function main() {
 
   console.log('checking network', hre.network.config)
   console.log('DEPLOYER ADDRESS', deployer.address)
-  if (hre.network.config.chainId === 31337) {
+  // if (hre.network.config.chainId === 31337) {
     // manual user, temp
     const [userSigner] = pilotSigners.slice(-1)
     // const passengerBalance = await deployer.provider.getBalance(userSigner.address)
@@ -68,9 +68,10 @@ async function main() {
 
     console.log('user signre address', userSigner.address, passengerBalance)
     if (passengerBalance < tokens(10000)) {
+      console.log('MINT TOKENA!')
       plnc.mint(userSigner.address, tokens(10000))
     }
-  }
+  // }
 
 
   writeFileSync('./frontend/.env', `VITE_HELIUBER_CONTRACT_ADDRESS=${address}\nVITE_PLNC_CONTRACT_ADDRESS=${plncAddress}`, { flag: 'w' })

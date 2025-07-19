@@ -20,7 +20,7 @@ const localhost = defineChain({
   },
 })
 
-const USE_LOCALHOST = true
+const USE_LOCALHOST = false
 
 const activeChain = USE_LOCALHOST ? localhost : sonicBlazeTestnet
 
