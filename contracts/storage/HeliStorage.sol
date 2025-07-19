@@ -4,15 +4,15 @@ pragma solidity ^0.8.20;
 contract HeliStorage {
     enum RideStatus { Pending, Paid, PassengerConfirmed, DriverConfirmed, BothConfirmed, Completed, Cancelled }
 
-    struct Ride {
+   struct Ride {
         address passenger;
         address pilot;
         uint256 price;
+        uint256 createdAt;
         bytes32 destination;
         RideStatus status;
         bool passengerConfirmed;
         bool pilotConfirmed;
-        uint256 createdAt;
     }
 
     mapping(address => mapping(uint256 => Ride)) public rides;

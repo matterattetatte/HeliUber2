@@ -3,15 +3,8 @@ pragma solidity ^0.8.20;
 
 import "../storage/HeliStorage.sol";
 import "../mock/PLNC.sol";
- 
-contract Payment is HeliStorage {
-    // Passenger pays ETH for the ride
-    function processPayment(address passenger, uint256 rideId) internal {
-        Ride storage ride = rides[passenger][rideId];
-        require(ride.status == RideStatus.Pending, "Invalid status");
-        ride.status = RideStatus.Paid;
-    }
 
+contract Payment is HeliStorage {
     function releasePayment(address passenger, uint256 rideId, PLNC plnc) internal {
         Ride storage ride = rides[passenger][rideId];
         require(ride.status == RideStatus.BothConfirmed, "Not both confirmed");

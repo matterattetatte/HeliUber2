@@ -4,13 +4,12 @@
 // You can also run a script with `npx hardhat run <script>`. If you do that, Hardhat
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
-const hre = require("hardhat")
-const { writeFileSync } = require("fs")
-const mockPilots = require("../mock/pilots.json")
+import hre from "hardhat"
+import { writeFileSync, readFileSync } from "fs"
 
-const tokens = (n) => {
-  return ethers.utils.parseUnits(n.toString(), 'ether')
-}
+const mockPilots = JSON.parse(readFileSync("./mock/pilots.json").toString())
+
+export const tokens = (n) => ethers.parseEther(n.toString())
 
 async function main() {
   // Setup accounts
@@ -18,10 +17,12 @@ async function main() {
 
   const PLNC = await hre.ethers.getContractFactory("PLNC")
   const plnc = await PLNC.deploy(deployer.address)
+  await plnc.waitForDeployment()
+  const plncAddress = await plnc.getAddress()
 
   // Deploy HeliUber
   const HeliUber = await hre.ethers.getContractFactory("HeliUber")
-  const heliuber = await HeliUber.deploy(await plnc.getAddress())
+  const heliuber = await HeliUber.deploy(plncAddress)
   await heliuber.waitForDeployment()
 
   const address = await heliuber.getAddress()
@@ -55,9 +56,24 @@ async function main() {
     console.log(`Registered pilot: ${pilot.name} with license ${pilot.licenseNumber}`);
   }
 
+  // now, fund some stablecoins to 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 if 
+
+  console.log('checking network', hre.network.config)
+  console.log('DEPLOYER ADDRESS', deployer.address)
+  if (hre.network.config.chainId === 31337) {
+    // manual user, temp
+    const [userSigner] = pilotSigners.slice(-1)
+    // const passengerBalance = await deployer.provider.getBalance(userSigner.address)
+    const passengerBalance = await plnc.balanceOf(userSigner.address)
+
+    console.log('user signre address', userSigner.address, passengerBalance)
+    if (passengerBalance < tokens(10000)) {
+      plnc.mint(userSigner.address, tokens(10000))
+    }
+  }
 
 
-  writeFileSync('./frontend/.env', `VITE_HELIUBER_CONTRACT_ADDRESS=${address}\n`, { flag: 'w' })
+  writeFileSync('./frontend/.env', `VITE_HELIUBER_CONTRACT_ADDRESS=${address}\nVITE_PLNC_CONTRACT_ADDRESS=${plncAddress}`, { flag: 'w' })
 }
 
 // We recommend this pattern to be able to use async/await everywhere

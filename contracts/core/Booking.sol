@@ -5,13 +5,14 @@ import "../storage/HeliStorage.sol";
 
 contract Booking is HeliStorage {
         function createBooking(address passenger, address pilot, uint256 price, bytes32 destination) internal returns (uint256) {
+
         uint256 rideId = rideCount++;
         rides[passenger][rideId] = Ride({
             passenger: passenger,
             pilot: pilot,
             price: price,
             destination: destination,
-            status: RideStatus.Pending,
+            status: RideStatus.Paid,
             passengerConfirmed: false,
             pilotConfirmed: false,
             createdAt: block.timestamp

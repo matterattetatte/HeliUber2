@@ -134,9 +134,9 @@ describe("Booking", () => {
       const pilotDelta     = pilotBalance - initialPilotBalance;
       const contractDelta  = heliUberBalance - initialheliUberBalance;
 
-      expectBalanceChange(passengerDelta, token, { allowGreater: true });
-      expectBalanceChange(pilotDelta, token * 99n / 100n, { allowLess: true });
-      expectBalanceChange(contractDelta, token * 1n / 100n);
+      expectBalanceChange(BigInt(passengerDelta), token, { allowGreater: true });
+      expectBalanceChange(BigInt(pilotDelta), token * 99n / 100n, { allowLess: true });
+      expectBalanceChange(BigInt(contractDelta), token * 1n / 100n);
     })
   })
 })

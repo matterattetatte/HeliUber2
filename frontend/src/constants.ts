@@ -21,7 +21,7 @@ export const USDC_ABI = [
   },
 ];
 
-export const PLNC_CONTRACT_ADDRESS = import.meta.env.VITE_PLNC_STABLECOIN_CONTRACT_ADDRESS as `0x${string}`;
+export const PLNC_CONTRACT_ADDRESS = import.meta.env.VITE_PLNC_CONTRACT_ADDRESS as `0x${string}`;
 
 export const PLNC_ABI = [
     {
@@ -454,3 +454,5 @@ export const PLNC_ABI = [
       "type": "function"
     }
 ]
+
+export const HELIUBER_CONTRACT_ADDRESS = import.meta.env.VITE_HELIUBER_CONTRACT_ADDRESS as `0x${string}`;
